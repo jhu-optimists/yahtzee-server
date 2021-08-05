@@ -18,14 +18,15 @@ db.init_app(app)
 # Local server state
 class GameState():
     usernames = []
-    high_score_map = [] # Map from username to their high score. We use a map instead of an object list since it is easier to to perform lookups. 
-    current_score_map = []
+    high_score_map = {} # Map from username to their high score. We use a map instead of an object list since it is easier to to perform lookups. 
+    current_score_map = {}
     user_with_turn = ""
     game_transcript = []
     chat_messages = []
     has_game_started = False
     error_message = ""
     game_status_message = "Game has not started."
+    dice_values = []
 
     # Server-side only game state
     turn_idx = 0
@@ -41,7 +42,8 @@ class GameState():
                 "chat_messages": self.chat_messages,
                 "has_game_started": self.has_game_started,
                 "error_message": self.error_message,
-                "game_status_message": self.game_status_message
+                "game_status_message": self.game_status_message,
+                "dice_values": self.dice_values
             }
         )
 
@@ -156,6 +158,15 @@ def handle_end_turn(user, player_score):
     game_state.turn_idx = (game_state.turn_idx + 1) % len(game_state.usernames)
     game_state.user_with_turn = game_state.usernames[game_state.turn_idx]
     game_state.game_status_message = "Game is in progress. " + game_state.user_with_turn + " has the current turn."
+    game_state.game_transcript.append(f"Turn has ended for {user}. Current score: {player_score}.")
+    game_state.current_score_map[user] = player_score
+    emit('broadcast_game_state', get_game_state(), broadcast=True)
+
+@socketio.on('dice_values')
+def handle_dice_values(dice_values):
+    print(f"Dice values {dice_values}.")
+    game_state.dice_values = dice_values
+    game_state.game_transcript.append(f"Dice values for {game_state.user_with_turn}: {dice_values}.")
     emit('broadcast_game_state', get_game_state(), broadcast=True)
 
 def get_game_state():
