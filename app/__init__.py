@@ -142,8 +142,8 @@ def handle_start_game():
     print("start_game")
     game_state.has_game_started = True
     game_state.user_with_turn = game_state.usernames[game_state.turn_idx]
-    game_state.game_status_message = "Game is in progress. " + game_state.user_with_turn + " is up!"
-    game_state.transcript.append("Game is in progress. " + game_state.user_with_turn + " is up!")
+    game_state.game_status_message = "Game in progress. " + game_state.user_with_turn + " is up!"
+    game_state.transcript.append("Game in progress. " + game_state.user_with_turn + " is up!")
     emit('broadcast_game_state', get_game_state(), broadcast=True)
 
 @socketio.on('chat_message')
