@@ -68,7 +68,7 @@ def get_user():
 
     if req_username not in game_state.usernames:
         game_state.usernames.append(req_username)
-        game_state.transcript.append(f"{req_username} joined. ")
+        game_state.transcript.append(f"{req_username} has joined the game! ")
     else:
         error_msg = f"{req_username} is already logged in."
         print(error_msg)
@@ -134,7 +134,7 @@ def handle_joined():
 def get_user_with_current_turn():
     print("get_user_with_current_turn")
     game_state.user_with_turn = game_state.usernames[game_state.turn_idx]
-    game_state.game_status_message = "Game is in progress. " + game_state.user_with_turn + " has the current turn."
+    game_state.game_status_message = "Game in progress." + game_state.user_with_turn + " is up!"
     emit('broadcast_game_state', get_game_state(), broadcast=True)
 
 @socketio.on('start_game')
@@ -142,14 +142,14 @@ def handle_start_game():
     print("start_game")
     game_state.has_game_started = True
     game_state.user_with_turn = game_state.usernames[game_state.turn_idx]
-    game_state.game_status_message = "Game is in progress. " + game_state.user_with_turn + " has the current turn."
-    game_state.transcript.append("Game is in progress. " + game_state.user_with_turn + " has the current turn.")
+    game_state.game_status_message = "Game is in progress. " + game_state.user_with_turn + " is up!"
+    game_state.transcript.append("Game is in progress. " + game_state.user_with_turn + " is up!")
     emit('broadcast_game_state', get_game_state(), broadcast=True)
 
 @socketio.on('chat_message')
 def handle_chat_message(user, user_message):
-    print(f"{user} sent message {user_message}.")
-    game_state.chat_messages.append(f"{user}: {user_message}.")
+    print(f"{user} sent message {user_message}")
+    game_state.chat_messages.append(f"{user}: {user_message}")
     emit('broadcast_game_state', get_game_state(), broadcast=True)
 
 @socketio.on('end_turn')
@@ -161,7 +161,7 @@ def handle_end_turn(user, player_score):
     game_state.turn_idx = (game_state.turn_idx + 1) % len(game_state.usernames)
     game_state.user_with_turn = game_state.usernames[game_state.turn_idx]
     game_state.game_status_message = "Game is in progress. " + game_state.user_with_turn + " has the current turn."
-    game_state.transcript.append(f"Turn has ended for {user}. {user}'s score: {player_score}. Now " + game_state.user_with_turn + " has the current turn.")
+    game_state.transcript.append(f"{user} completed their turn with a score of {player_score}. Now {game_state.user_with_turn} is up!")
     game_state.current_score_map[user] = player_score
     game_state.dice_roll_count = 0
     emit('broadcast_game_state', get_game_state(), broadcast=True)
@@ -171,7 +171,7 @@ def handle_dice_values(dice_values):
     print(f"Dice values {dice_values}.")
     game_state.dice_values = dice_values
     game_state.dice_roll_count += 1
-    game_state.transcript.append(f"Dice values for {game_state.user_with_turn}: {dice_values}.")
+    game_state.transcript.append(f"{game_state.user_with_turn} rolled {dice_values}")
     emit('broadcast_game_state', get_game_state(), broadcast=True)
 
 def get_game_state():
