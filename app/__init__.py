@@ -164,9 +164,10 @@ def handle_end_turn(user, player_score, scorecard):
     game_state.turn_idx = (game_state.turn_idx + 1) % len(game_state.usernames)
     game_state.user_with_turn = game_state.usernames[game_state.turn_idx]
     game_state.game_status_message = "Game is in progress. " + game_state.user_with_turn + " has the current turn."
-    game_state.transcript.append(f"{user} completed their turn with a score of {player_score} and scorecard of {scorecard}. Now {game_state.user_with_turn} is up!")
+    game_state.transcript.append(f"{user} completed their turn with a score of {player_score}. Now, {game_state.user_with_turn} is up!")
     game_state.current_score_map[user] = player_score
     game_state.dice_roll_count = 0
+    game_state.user_scorecard_map[user] = scorecard
     emit('broadcast_game_state', get_game_state(), broadcast=True)
 
 @socketio.on('dice_values')
