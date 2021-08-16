@@ -29,9 +29,11 @@ class GameState():
     game_status_message = "Game has not started."
     dice_values = []
     dice_roll_count = 0
+    has_game_ended = False
 
     # Server-side only game state
     turn_idx = 0
+    total_turn_count = 0
 
     def to_json(self):
         return json.dumps(
@@ -47,7 +49,8 @@ class GameState():
                 "error_message": self.error_message,
                 "game_status_message": self.game_status_message,
                 "dice_values": self.dice_values,
-                "dice_roll_count": self.dice_roll_count
+                "dice_roll_count": self.dice_roll_count,
+                "has_game_ended": self.has_game_ended
             }
         )
 
@@ -168,6 +171,8 @@ def handle_end_turn(user, player_score, scorecard):
     game_state.current_score_map[user] = player_score
     game_state.dice_roll_count = 0
     game_state.user_scorecard_map[user] = scorecard
+    game_state.total_turn_count += 1
+    set_game_ended(game_state.total_turn_count)
     emit('broadcast_game_state', get_game_state(), broadcast=True)
 
 @socketio.on('dice_values')
@@ -177,6 +182,13 @@ def handle_dice_values(dice_values):
     game_state.dice_roll_count += 1
     game_state.transcript.append(f"{game_state.user_with_turn} rolled {dice_values}")
     emit('broadcast_game_state', get_game_state(), broadcast=True)
+
+def set_game_ended(total_turn_count):
+    # Game ends when all players have played their turns.
+    print(f"Total turn count: {total_turn_count}.")
+    if total_turn_count == len(game_state.usernames) * 13:
+        game_state.has_game_ended = True
+        game_state.transcript.append("Game has ended for all users.")
 
 def get_game_state():
     return game_state.to_json()
