@@ -105,9 +105,17 @@ def get_user():
     else:
         resp = {
             'username': user[0]['username'],
-            'highScore': user[0]['high_score'] # not necessary anymore
+            'highScore': user[0]['high_score']
         }
         return jsonify(resp)
+
+@app.route('/hall', methods=['GET'])
+def get_hall():
+    hall_of_fame = Hall.objects(key='all_records') # CHANGE BEFORE PUSHING
+    resp = {
+            'records': hall_of_fame[0]['records']
+        }
+    return jsonify(resp)
         
 @app.route('/refresh', methods=['POST'])
 def post_refresh(): 
@@ -223,7 +231,7 @@ def update_user_high(user, candidate):
         user.update(high_score=candidate)
 
 def update_hall_of_fame(user, candidate):
-    hall_of_fame = Hall.objects(key='all_records_test')
+    hall_of_fame = Hall.objects(key='all_records')
     hall_recs = copy.deepcopy(hall_of_fame[0]['records'])
 
     for i in range(10):
