@@ -8,7 +8,7 @@ import copy
 
 # CONFIG
 app = Flask(__name__)
-CORS(app)
+CORS(app,resources={r"/*":{"origins":"*"}})
 app.config['MONGODB_SETTINGS'] = {
     'db': 'yahtzee',
     'host': os.environ.get('DATABASE_URL')
@@ -250,4 +250,4 @@ def get_game_state():
     return game_state.to_json()
 
 if __name__ == '__main__':
-	socketio.run(app, port=5000)
+    socketio.run(app, port=5000)
